@@ -34,6 +34,26 @@ public class OrderServiceCancelTests
         Assert.Equal(OrderStatus.Cancelled, db.Orders.Single(o => o.Id == order.Id).Status);
     }
 
+    [Fact]
+    public async Task CancelOrder_RestoresProductStock()
+    {
+        using var db = TestSetup.CreateContext();
+        var service = TestSetup.CreateOrderService(db);
+        var customer = TestSetup.AddCustomer(db);
+        var product = TestSetup.AddProduct(db, stock: 50);
+
+        var created = await service.CreateOrderAsync(customer.Id, new[] { new NewOrderLine(product.Id, 3) });
+        Assert.True(created.Success);
+        // 建立訂單後庫存先被扣除：50 - 3 = 47
+        Assert.Equal(47, db.Products.Single(p => p.Id == product.Id).StockQuantity);
+
+        var result = await service.CancelOrderAsync(created.Value!.Id);
+
+        Assert.True(result.Success);
+        // 取消訂單後，保留的庫存應加回商品：回到 50
+        Assert.Equal(50, db.Products.Single(p => p.Id == product.Id).StockQuantity);
+    }
+
     [Theory]
     [InlineData(OrderStatus.Shipped)]
     [InlineData(OrderStatus.Cancelled)]
