@@ -185,12 +185,12 @@ private async Task<List<string>> BuildOrderItemList<NewOrderLine> lines)
         var product = await _productRepository.GetByIdAsync(line.ProductId);
         if (product is null || !product.IsActiv
         {
-            errors.Add($"商品（Id={line.Product
+            errors.Add('$"商品（Id={line.Product
             continue;
         }
         if (product.StockQuantity < line.Quantity)
         {
-            errors.Add($"商品「{product.Name}」庫存不足（現有 {product.StockQuantity}，需求 {line.Quantity}）");
+            errors.Add('$"商品「{product.Name}」庫存不足（現有 {product.StockQuantity}，需求 {line.Quantity}）");
             continue;
         }
         product.StockQuantity -= line.Quantity;
