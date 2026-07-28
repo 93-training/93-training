@@ -38,22 +38,52 @@ public class OrderService : IOrderService
         if (customer is null)
             return ServiceResult<Order>.Fail("找不到指定的客戶");
 
-        if (lines is null || lines.Count == 0)
-            return ServiceResult<Order>.Fail("訂單至少需要一項商品");
+        var lineError = ValidateLines(lines);
+        if (lineError is not null)
+            return ServiceResult<Order>.Fail(lineError);
 
-        if (lines.Any(l => l.Quantity <= 0))
-            return ServiceResult<Order>.Fail("商品數量必須大於 0");
-
-        if (lines.Select(l => l.ProductId).Distinct().Count() != lines.Count)
-            return ServiceResult<Order>.Fail("同一商品請勿重複加入，請調整數量即可");
-
-        var errors = new List<string>();
         var order = new Order
         {
             CustomerId = customer.Id,
             Status = OrderStatus.Pending,
             CreatedAt = DateTime.UtcNow
         };
+
+        var errors = await BuildOrderItemsAsync(order, lines);
+        if (errors.Count > 0)
+            return ServiceResult<Order>.Fail(errors);
+
+        await _orderRepository.AddAsync(order);
+        await _orderRepository.SaveChangesAsync();
+
+        return ServiceResult<Order>.Ok(order);
+    }
+
+    /// <summary>
+    /// 檢查訂單明細的整體格式規則（與商品資料無關）。第一個違規即回傳訊息，全部通過則回傳 null。
+    /// 新增這類「明細層級」的驗證規則時，集中加在這裡即可。
+    /// </summary>
+    private static string? ValidateLines(IReadOnlyList<NewOrderLine> lines)
+    {
+        if (lines is null || lines.Count == 0)
+            return "訂單至少需要一項商品";
+
+        if (lines.Any(l => l.Quantity <= 0))
+            return "商品數量必須大於 0";
+
+        if (lines.Select(l => l.ProductId).Distinct().Count() != lines.Count)
+            return "同一商品請勿重複加入，請調整數量即可";
+
+        return null;
+    }
+
+    /// <summary>
+    /// 逐項處理明細：驗證商品存在／販售中與庫存，扣減庫存並建立訂單項目。
+    /// 蒐集所有錯誤後一次回傳；只要有任何錯誤，呼叫端即不應存檔。
+    /// </summary>
+    private async Task<List<string>> BuildOrderItemsAsync(Order order, IReadOnlyList<NewOrderLine> lines)
+    {
+        var errors = new List<string>();
 
         foreach (var line in lines)
         {
@@ -72,23 +102,15 @@ public class OrderService : IOrderService
 
             product.StockQuantity -= line.Quantity;
 
-            var unitPrice = product.UnitPrice;
-
             order.Items.Add(new OrderItem
             {
                 ProductId = product.Id,
                 Quantity = line.Quantity,
-                UnitPriceSnapshot = unitPrice
+                UnitPriceSnapshot = product.UnitPrice
             });
         }
 
-        if (errors.Count > 0)
-            return ServiceResult<Order>.Fail(errors);
-
-        await _orderRepository.AddAsync(order);
-        await _orderRepository.SaveChangesAsync();
-
-        return ServiceResult<Order>.Ok(order);
+        return errors;
     }
 
     public async Task<ServiceResult<Order>> CancelOrderAsync(int id)
