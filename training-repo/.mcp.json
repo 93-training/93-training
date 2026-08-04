@@ -1,0 +1,11 @@
+{
+  "mcpServers": {
+    "orderhub": {
+      "command": "dotnet",
+      "args": ["run", "--project", "src/OrderHub.Mcp"],
+      "env": {
+        "ConnectionStrings__Default": "Server=(localdb)\\MSSQLLocalDB;Database=OrderHubTraining;Integrated Security=True;Encrypt=True;TrustServerCertificate=True;MultipleActiveResultSets=True"
+      }
+    }
+  }
+}
