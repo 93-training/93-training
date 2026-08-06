@@ -375,9 +375,9 @@ Program.cs 註冊(接在 `WithTools` 後面):
 
 **驗證方式**:
 
-- [ ] MCP Inspector:Resources 分頁讀得到 `orderhub://discount-rules`;Prompts 分頁能帶 `threshold` 參數取得展開後的訊息
-- [ ] Claude Code:`@` 選 resource 後問折扣問題,agent 用 resource 內容作答(Codex 用戶:Inspector 讀出 resource 內容貼進對話,問同一題)
-- [ ] Claude Code:`/mcp__orderhub__low_stock_report` 一鍵產出採購建議表
-- [ ] PROCESS.md 記錄 5c 第 3 點的思考;獨立 commit
+- [v] MCP Inspector:Resources 分頁讀得到 `orderhub://discount-rules`;Prompts 分頁能帶 `threshold` 參數取得展開後的訊息
+- [v] Claude Code:`@` 選 resource 後問折扣問題,agent 用 resource 內容作答(Codex 用戶:Inspector 讀出 resource 內容貼進對話,問同一題)
+- [v] Claude Code:`/mcp__orderhub__low_stock_report` 一鍵產出採購建議表
+- [v] PROCESS.md 記錄 5c 第 3 點的思考;獨立 commit
 
 ---
