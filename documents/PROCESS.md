@@ -383,6 +383,14 @@ Stock stayed at 14 — unchanged from the post-cancel value, so no double restor
 
 So the state-transition guard in CancelOrderAsync holds for Cancelled → Cancelled. If you were probing for a planted bug in the double-cancel path, this one's clean. If you actually meant a different order number, tell me which and I'll do it.
 
+練習 5
+
+問題1：折扣規則用 Resource 給,和讓 agent 自己去讀 OrderService.cs,差在哪?
+我的回答: 應該是為了設置統一邏輯規則，類似claude.md的作用，當然最主要的是省token/時間, 沒必要浪費錢/時間在重複的邏輯規則上
+
+問題2: prompt 範本放在 server,和每個人自己打一段話,差在哪?
+我的回答: 每個人自己打一段話差異可以很大，因為每個人的理解不同，使用的詞彙也不同，claude/ai agent很大概率會給出不一致的代碼/答案。另外重要的prompt 範本讓團隊共用，也是希望保證團隊的工作質量，不會因為部分隊友的低質量prompt導致原本代碼被改動，降低產出效率
+
 ---
 
 ## 附錄：值得留下的對話片段
