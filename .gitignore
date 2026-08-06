@@ -20,3 +20,25 @@ node_modules/
 
 # Local settings that should not be shared
 *.local.json
+
+# --- Secrets & sensitive configuration (must NOT be uploaded to GitHub) ---
+# Environment files
+.env
+.env.*
+!.env.example
+
+# App configuration
+#   Base appsettings.json stays committed (shared, non-secret config).
+#   Environment overrides (Development/Production/etc.) may hold secrets — ignore them.
+appsettings.*.json
+
+# Certificates & private keys
+*.pfx
+*.p12
+*.key
+*.pem
+
+# Secret stores
+secrets.json
+**/secrets/**
+/training-repo/src/OrderHub.Mcp/OrderHubTools.cs
